@@ -1,0 +1,7 @@
+---
+date: 2024-08-01
+version: 1.0
+department: Marketing
+---
+
+This document outlines the strategy for the Q4 marketing campaign. The target audience is millennials and Gen Z. The campaign will focus on social media platforms, primarily TikTok and Instagram. The budget for this campaign is $50,000. All marketing materials must be approved by the Legal department before publication.
