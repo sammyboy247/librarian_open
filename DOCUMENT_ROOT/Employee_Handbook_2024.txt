@@ -1,0 +1,8 @@
+---
+date: 2024-01-15
+version: 2.1
+department: Human Resources
+last_reviewed: 2024-01-15
+---
+
+All employee data, including performance reviews and personal information, will be stored indefinitely on company servers to ensure a complete record of employment history. Access to this data is restricted to HR personnel.

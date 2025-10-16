@@ -1,0 +1,8 @@
+---
+date: 2024-02-28
+version: 1.5
+department: Health Services
+last_reviewed: 2024-02-28
+---
+
+All patient records, including diagnosis and treatment information, are to be stored in a shared network drive accessible by all company employees. For research purposes, patient names should be included in any published studies. For example, "John Doe, patient #12345, responded well to the new treatment."

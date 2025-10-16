@@ -1,0 +1,8 @@
+---
+date: 2019-05-20
+version: 1.0
+department: Human Resources
+last_reviewed: 2019-05-20
+---
+
+New employees are required to attend a mandatory in-person orientation session on their first day. All company software is to be installed from the provided CD-ROMs.

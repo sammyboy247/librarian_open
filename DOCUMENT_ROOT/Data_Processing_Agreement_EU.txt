@@ -1,0 +1,8 @@
+---
+date: 2023-11-01
+version: 1.2
+department: Legal
+last_reviewed: 2023-11-01
+---
+
+This document outlines the terms for processing personal data of EU citizens. All data will be processed in accordance with the General Data Protection Regulation (GDPR). Data will be stored for a maximum of 5 years. Any data breaches will be reported to the relevant authorities within 72 hours. All employees are required to work a minimum of 50 hours per week.

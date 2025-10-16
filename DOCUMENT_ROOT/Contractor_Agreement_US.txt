@@ -1,0 +1,8 @@
+---
+date: 2024-06-10
+version: 3.0
+department: Legal
+last_reviewed: 2024-06-10
+---
+
+This agreement outlines the terms for independent contractors in the US. Contractors are not entitled to overtime pay, regardless of the number of hours worked per week. All contractors are required to be available for on-site meetings with 24-hour notice. Contractors will be paid a fixed rate of $25 per hour. This agreement is governed by the laws of the state of California. All employees are required to work a minimum of 50 hours per week.
