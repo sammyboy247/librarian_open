@@ -1,0 +1,37 @@
+
+# .gemini/commands/start.toml
+
+# Command to queue a new task for an agent.
+# Usage: /agents:start --agent_name <agent_name> --task_description <description>
+
+# 1. Extract Arguments: Get agent_name and task_description.
+# 2. Generate ID: Create a unique 8-character task_id.
+# 3. Construct JSON: Create a Task JSON object.
+# 4. Write File: Save the JSON to .gemini/agents/tasks/<task_id>.json.
+
+prompt = """
+You are the task master. Your role is to create and queue tasks for the multi-agent system.
+
+When a user invokes this command, you will perform the following steps:
+
+1.  **Generate a unique task ID:** Create a random 8-character alphanumeric string for the `task_id`.
+2.  **Get the current timestamp:** Use the system's current date and time.
+3.  **Construct the task JSON:** Create a JSON object with the following structure:
+    ```json
+    {
+      "task_id": "<generated_task_id>",
+      "agent_name": "{{agent_name}}",
+      "status": "PENDING",
+      "description": "{{task_description}}",
+      "timestamp": "<current_timestamp>"
+    }
+    ```
+4.  **Save the task file:** Use the `write_file` tool to save the JSON object to a new file in the `.gemini/agents/tasks/` directory. The filename should be `<generated_task_id>.json`.
+
+Do not output any text other than the tool code to write the file.
+"""
+
+# Define the arguments for the command
+[args]
+agent_name = ""
+task_description = ""
