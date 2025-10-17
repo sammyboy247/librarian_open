@@ -1,300 +1,229 @@
-# Manual Gemini CLI Inquiry Guide
+# Manual Inquiry Guide - Gemini CLI
 
-A reference for manually invoking audit agents and debugging the librarian_open system.
+## Command Line Syntax
 
----
+Based on the actual Gemini CLI format, here's the correct syntax for manual inquiries:
 
-## Core Concepts
-
-The librarian_open system works by:
-1. Creating task JSON files in `.gemini/agents/tasks/`
-2. Invoking Gemini CLI with agent prompts
-3. Agents read documents and write results to `.gemini/agents/logs/`
-
----
-
-## Recommended Manual Inquiry Commands
-
-### Basic Format
+### 1. Queue a Task (Start an Inquiry)
 
 ```bash
-gemini -i "You are the [AGENT-NAME]. Task: [DESCRIPTION]. Use the read_file tool to examine DOCUMENT_ROOT/[filename]. Report your findings."
+gemini agents:start "<AGENT_NAME>" "<TASK_DESCRIPTION>"
 ```
 
-### Quick Diagnostic
+**Examples:**
 
 ```bash
-gemini -i "List all files in DOCUMENT_ROOT/ directory."
+# Queue GDPR audit
+gemini agents:start "gdpr_auditor" "Audit Employee_Handbook_2024.txt for GDPR compliance"
+
+# Queue HR audit
+gemini agents:start "hr_auditor" "Check Contractor_Agreement_US.txt for labor law violations"
+
+# Queue Legal audit
+gemini agents:start "legal_auditor" "Review Data_Processing_Agreement_EU.txt for legal issues"
+
+# Queue Governance audit
+gemini agents:start "governance_auditor" "Audit Onboarding_Policy_2019.txt for governance compliance"
+
+# Queue Medical audit
+gemini agents:start "medical_auditor" "Check Patient_Data_Handling_Protocol.txt for medical data privacy"
+
+# Queue Conflict Finder
+gemini agents:start "conflict_finder" "Find conflicts between Employee_Handbook_2024.txt and Data_Processing_Agreement_EU.txt"
+
+# Queue Template Suite
+gemini agents:start "template_suite" "Generate new templates for updated policies"
 ```
 
-**Expected Output**: Lists all test documents in the DOCUMENT_ROOT folder.
+**Valid Agent Names (from extension files):**
+- `gdpr_auditor`
+- `legal_auditor`
+- `hr_auditor`
+- `medical_auditor`
+- `governance_auditor`
+- `conflict_finder`
+- `template_suite`
+- `alert`
+- `calendar`
+
+### 2. Run the Orchestrator (Process Tasks)
+
+```bash
+gemini agents:run
+```
+
+This command:
+1. Scans `.gemini/agents/tasks/` for PENDING tasks
+2. Selects the oldest task
+3. Launches the appropriate agent
+4. Results appear in `.gemini/agents/logs/{task_id}_report.txt`
 
 ---
 
-## Agent-Specific Manual Inquiries
+## Workflow Example
 
-### 1. GDPR Auditor
-
+### Step 1: Queue Task
 ```bash
-gemini -i "You are the GDPR-Auditor-Agent. Read and analyze DOCUMENT_ROOT/Employee_Handbook_2024.txt for GDPR compliance violations. Report any findings."
+cd D:\dev\librarian_open
+gemini agents:start "gdpr_auditor" "Audit Employee_Handbook_2024.txt for GDPR compliance issues"
 ```
 
-**What it tests**: GDPR issues, data retention problems, privacy violations
+**Output**: Task is queued, task ID is generated
 
-**Look for in output**:
-- References to "indefinite storage"
-- "GDPR" or "privacy" concerns
-- "data retention" issues
-
----
-
-### 2. Legal Auditor
-
+### Step 2: Check Task Queue
 ```bash
-gemini -i "You are the Legal-Auditor-Agent. Read and analyze DOCUMENT_ROOT/Data_Processing_Agreement_EU.txt for legal and labor law violations. Report findings."
+Get-ChildItem .gemini\agents\tasks\
 ```
 
-**What it tests**: Legal compliance, labor law, contractual issues
+You should see the task JSON file created.
 
-**Look for in output**:
-- "labor" or "employment" concerns
-- "legal" violations
-- "contract" or "liability" issues
-
----
-
-### 3. HR Auditor
-
+### Step 3: Run Orchestrator
 ```bash
-gemini -i "You are the HR-Auditor-Agent. Read and analyze DOCUMENT_ROOT/Contractor_Agreement_US.txt for HR policy violations and labor law issues. Report findings."
+gemini agents:run
 ```
 
-**What it tests**: HR policies, employee rights, compensation issues
+This launches the agent with the PENDING task.
 
-**Look for in output**:
-- "overtime" or "compensation" concerns
-- "employee" classification issues
-- Policy inconsistencies
-
----
-
-### 4. Governance Auditor
-
+### Step 4: Monitor Progress
 ```bash
-gemini -i "You are the Governance-Auditor-Agent. Read and analyze DOCUMENT_ROOT/Onboarding_Policy_2019.txt for governance issues, obsolete content, or overdue reviews. Report findings."
-```
+# Watch for result file
+Get-ChildItem .gemini\agents\logs\ | Sort-Object LastWriteTime -Descending | Select -First 1 | Get-Content
 
-**What it tests**: Review dates, policy age, governance compliance
-
-**Look for in output**:
-- "2019" or old dates
-- "obsolete" or "outdated" references
-- "review" date concerns
-
----
-
-### 5. Medical Auditor
-
-```bash
-gemini -i "You are the Medical-Auditor-Agent. Read and analyze DOCUMENT_ROOT/Patient_Data_Handling_Protocol.txt for medical data security and HIPAA concerns. Report findings."
-```
-
-**What it tests**: Medical data handling, HIPAA compliance, security protocols
-
-**Look for in output**:
-- "medical" or "patient" concerns
-- "HIPAA" or "security" issues
-- "data handling" problems
-
----
-
-### 6. Conflict Finder
-
-```bash
-gemini -i "You are the Conflict-Finder-Agent. Compare DOCUMENT_ROOT/Employee_Handbook_2024.txt with DOCUMENT_ROOT/Legal_Data_Retention_Policy.txt and identify contradictions or conflicts. Report all inconsistencies."
-```
-
-**What it tests**: Cross-document consistency, policy conflicts
-
-**Look for in output**:
-- "contradiction"
-- "conflict"
-- "inconsistent"
-- References to both documents
-
----
-
-## Orchestrator Manual Execution
-
-The orchestrator processes the task queue. To manually run it:
-
-```bash
-gemini -i "You are the Executive Orchestrator. 
-1. Use list_directory to scan .gemini/agents/tasks/ 
-2. Find files with status PENDING
-3. Read the oldest one
-4. Report what task you found"
-```
-
----
-
-## Testing a Full Task Flow Manually
-
-### Step 1: Create Task File
-
-Create a file `.gemini/agents/tasks/test123.json`:
-
-```json
-{
-  "task_id": "test123",
-  "agent_name": "GDPR-Auditor-Agent",
-  "status": "PENDING",
-  "description": "Audit Employee_Handbook_2024.txt for GDPR compliance",
-  "timestamp": "2024-10-16T23:30:00Z"
+# Or continuously monitor
+while ($true) {
+    Clear-Host
+    Write-Host "=== Task Results ===" -ForegroundColor Cyan
+    Get-ChildItem .gemini\agents\logs\ | Sort-Object LastWriteTime -Descending | Select -First 1 | Get-Content
+    Start-Sleep -Seconds 2
 }
 ```
 
-### Step 2: Invoke Agent
-
+### Step 5: View Results
 ```bash
-gemini -i "You are the GDPR-Auditor-Agent. Your task is to audit DOCUMENT_ROOT/Employee_Handbook_2024.txt for GDPR compliance. Write your findings to .gemini/agents/logs/test123_report.txt. Be thorough and list all violations found."
-```
-
-### Step 3: Check Results
-
-```bash
-gemini -i "Read and display the contents of .gemini/agents/logs/test123_report.txt"
+# View the latest report
+$latest = Get-ChildItem .gemini\agents\logs\*.txt | Sort-Object LastWriteTime -Descending | Select -First 1
+Get-Content $latest
 ```
 
 ---
 
-## Debugging Commands
+## Complete Manual Test Workflow
 
-### Check Task Queue
+```powershell
+# 1. Navigate to project
+cd D:\dev\librarian_open
 
-```bash
-gemini -i "List all JSON files in .gemini/agents/tasks/ directory and show their status field."
-```
+# 2. Queue a task
+Write-Host "Queuing GDPR audit task..." -ForegroundColor Cyan
+gemini agents:start "gdpr_auditor" "Audit Employee_Handbook_2024.txt for GDPR compliance"
 
-### Check Logs
+# 3. Wait a moment
+Start-Sleep -Seconds 2
 
-```bash
-gemini -i "List all files in .gemini/agents/logs/ directory and show their file sizes."
-```
+# 4. View task in queue
+Write-Host "`nTasks in queue:" -ForegroundColor Cyan
+Get-ChildItem .gemini\agents\tasks\
 
-### View Specific Log
+# 5. Run orchestrator
+Write-Host "`nRunning orchestrator..." -ForegroundColor Cyan
+gemini agents:run
 
-```bash
-gemini -i "Read and display the contents of .gemini/agents/logs/[TASK_ID]_report.txt"
-```
+# 6. Wait for completion
+Write-Host "`nWaiting for results..." -ForegroundColor Cyan
+Start-Sleep -Seconds 5
 
-### Verify Document Access
-
-```bash
-gemini -i "Read the first 500 characters of DOCUMENT_ROOT/Employee_Handbook_2024.txt"
-```
-
----
-
-## Advanced Manual Testing
-
-### Test All Agents Against One Document
-
-```bash
-for agent in GDPR-Auditor-Agent Legal-Auditor-Agent HR-Auditor-Agent Governance-Auditor-Agent Medical-Auditor-Agent; do
-  echo "Testing $agent..."
-  gemini -i "You are the $agent. Read and analyze DOCUMENT_ROOT/Employee_Handbook_2024.txt. List all issues you find."
-done
-```
-
-### Compare Agent Outputs
-
-```bash
-# Run same document through two agents and compare
-gemini -i "You are the GDPR-Auditor-Agent. Analyze DOCUMENT_ROOT/Employee_Handbook_2024.txt and list issues."
-
-gemini -i "You are the Legal-Auditor-Agent. Analyze DOCUMENT_ROOT/Employee_Handbook_2024.txt and list issues."
-
-# Compare the outputs for overlap or differences
+# 7. View results
+Write-Host "`nResults:" -ForegroundColor Cyan
+$latest = Get-ChildItem .gemini\agents\logs\*.txt | Sort-Object LastWriteTime -Descending | Select -First 1
+Get-Content $latest
 ```
 
 ---
 
-## Key Gemini CLI Options
+## Batch Testing Multiple Documents
 
-| Option | Purpose | Example |
-|--------|---------|---------|
-| `-i` | Interactive mode with prompt | `gemini -i "Your prompt here"` |
-| `-p` | Non-interactive prompt | `gemini -p "Your prompt"` |
-| `-d` | Debug mode | `gemini -d -i "Your prompt"` |
-| `-e` | Use specific extensions | `gemini -e gdpr_auditor -i "Your prompt"` |
-| `-o json` | JSON output format | `gemini -o json -i "Your prompt"` |
+```powershell
+$agents = @("gdpr_auditor", "legal_auditor", "hr_auditor")
+$documents = @(
+    "Employee_Handbook_2024.txt",
+    "Data_Processing_Agreement_EU.txt",
+    "Contractor_Agreement_US.txt"
+)
+
+foreach ($doc in $documents) {
+    foreach ($agent in $agents) {
+        Write-Host "`n[$(Get-Date -Format 'HH:mm:ss')] Queuing: $agent → $doc" -ForegroundColor Green
+        gemini agents:start "$agent" "Audit $doc for compliance"
+        Start-Sleep -Seconds 1
+    }
+}
+
+Write-Host "`nAll tasks queued. Running orchestrator..." -ForegroundColor Cyan
+gemini agents:run
+
+# Wait and collect results
+Write-Host "`nWaiting for all results..." -ForegroundColor Cyan
+Start-Sleep -Seconds 10
+
+Write-Host "`nResults:" -ForegroundColor Cyan
+Get-ChildItem .gemini\agents\logs\*.txt | Sort-Object LastWriteTime -Descending | Get-Content
+```
 
 ---
 
 ## Troubleshooting Manual Inquiries
 
-### Issue: "Command not found: gemini"
+### Issue: "Unknown command agents:start"
+**Solution**: Ensure you're in the project root (`D:\dev\librarian_open`) where `.gemini/` is located
 
-**Solution**: Add Gemini CLI to PATH
+### Issue: "No matching agent found"
+**Solution**: Verify agent name corresponds to an extension file in `.gemini/agents/extensions/` 
+- Extension file: `gdpr_auditor.toml` → Agent name: `gdpr_auditor`
+- Extension file: `legal_auditor.toml` → Agent name: `legal_auditor`
+
+### Issue: Task created but not processed
+**Solution**: Run orchestrator manually with `gemini agents:run`
+
+### Issue: Results not appearing
+**Solution**: 
 ```bash
-$env:PATH += ";C:\path\to\gemini\bin"
+# Check logs directory
+Get-ChildItem .gemini\agents\logs\
+
+# If empty, check task status
+Get-ChildItem .gemini\agents\tasks\ | ForEach-Object { Get-Content $_ }
 ```
 
-### Issue: Agent can't read file
-
-**Solution**: Use absolute paths or ensure working directory is correct
-```bash
-# Wrong (relative path may fail)
-gemini -i "Read Employee_Handbook_2024.txt"
-
-# Right (explicit path)
-gemini -i "Read DOCUMENT_ROOT/Employee_Handbook_2024.txt"
-```
-
-### Issue: Tool access denied
-
-**Solution**: Check agent extension permissions in `.gemini/agents/extensions/[agent].toml`
-
-```toml
-[tools]
-include = ["read_file", "read_many_files"]  # What tools can this agent use?
-```
-
-### Issue: Results not appearing in logs
-
-**Solution**: Verify the write_file instruction in your prompt
-```bash
-gemini -i "Write your findings to .gemini/agents/logs/myresult.txt using the write_file tool"
-```
+### Issue: "gemini: command not found"
+**Solution**: Ensure Gemini CLI is in PATH or use full path
 
 ---
 
-## Testing Workflow
+## Quick Commands Reference
 
-1. **Verify system**: `gemini -i "List files in DOCUMENT_ROOT/"`
-2. **Test one agent**: `gemini -i "You are GDPR-Auditor-Agent. Read DOCUMENT_ROOT/Employee_Handbook_2024.txt and report findings."`
-3. **Check output**: `gemini -i "Read .gemini/agents/logs/latest_file.txt"`
-4. **Compare agents**: Run same document through multiple agents
-5. **Use test runner**: `.\test-runner-v2.ps1 -Verbose $true` when manual testing is complete
+```bash
+# Queue a GDPR audit
+gemini agents:start "gdpr_auditor" "Check all documents for GDPR compliance"
 
----
+# Run orchestrator to process tasks
+gemini agents:run
 
-## Success Indicators
+# View recent logs
+Get-ChildItem .gemini\agents\logs\ | Sort-Object LastWriteTime -Descending | Select -First 1 | Get-Content
 
-✅ Agent responds with document analysis
-✅ Issues/findings are listed
-✅ Results appear in appropriate logs directory
-✅ No "permission denied" errors
-✅ Output references specific document sections
-✅ Different agents flag different issues
+# Check pending tasks
+Get-ChildItem .gemini\agents\tasks\ | ForEach-Object { 
+    Write-Host "Task: $($_.BaseName)"
+    Get-Content $_ | ConvertFrom-Json | Select-Object task_id, agent_name, status
+}
 
----
+# Clear all tasks (reset test state)
+Remove-Item .gemini\agents\tasks\*.json
+Remove-Item .gemini\agents\logs\*.txt
 
-## Next Steps
-
-1. **Try a manual inquiry**: Start with the Quick Diagnostic command
-2. **Test an agent**: Pick one agent and run its manual inquiry
-3. **Use the test runner**: `.\test-runner-v2.ps1 -TestMode quick`
-4. **Review output**: Check `test-results/` for detailed logs
+# View all agent extensions available
+Get-ChildItem .gemini\agents\extensions\*.toml | ForEach-Object { 
+    Write-Host $_.BaseName 
+}
+```
 
