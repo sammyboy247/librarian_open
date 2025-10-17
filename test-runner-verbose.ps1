@@ -19,7 +19,7 @@ param(
 # ============================================================================
 # Configuration
 # ============================================================================
-$ProjectRoot = Split-Path -Parent $MyInvocation.MyCommandPath
+$ProjectRoot = $PSScriptRoot
 $GeminiDir = Join-Path $ProjectRoot ".gemini"
 $DocumentRoot = Join-Path $ProjectRoot "DOCUMENT_ROOT"
 $LogsDir = Join-Path $GeminiDir "logs"
