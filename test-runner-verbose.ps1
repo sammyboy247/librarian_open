@@ -297,7 +297,7 @@ function New-AuditTask {
 # ============================================================================
 function Invoke-Orchestrator {
     Write-TestLog "Invoking Orchestrator (gemini agents:run)..." "INFO"
-    Write-TestLog "  Working directory: $ProjectRoot" "VERBOSE"
+    Write-TestLog "  Working directory: $GeminiDir" "VERBOSE"
     
     try {
         Write-TestLog "  Task queue before orchestrator:" "VERBOSE"
@@ -305,7 +305,7 @@ function Invoke-Orchestrator {
         Write-TestLog "    Pending tasks: $($taskBefore.Count)" "DEBUG"
         
         Write-TestLog "  Executing: gemini agents:run" "DEBUG"
-        Push-Location $ProjectRoot
+        Push-Location $GeminiDir
         $orchestratorOutput = & gemini agents:run 2>&1
         Pop-Location
         
